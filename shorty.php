@@ -315,7 +315,7 @@ class Shorty {
 
         $url = '';
         if (isset($_GET['url'])) {
-          $url = urldecode($_GET['url']);
+          $url = sanitizeUrl($_GET['url']);
         }
 
         $format = '';
@@ -392,4 +392,16 @@ class Shorty {
             }
         }
     }
+}
+
+function sanitizeUrl($url)
+{
+    $url = urldecode($url);
+
+    $chars = '$-_.+!*\'(),{}|\\^~[]`<>#%";/?:@&=';
+    $pattern = '~[^a-z0-9' . preg_quote($chars, '~') . ']+~iu';
+
+    $callback = create_function('$matches', 'return urlencode($matches[0]);');
+
+    return preg_replace_callback($pattern, $callback, $url);
 }
